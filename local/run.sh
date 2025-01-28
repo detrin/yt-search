@@ -98,7 +98,7 @@ fi
 log "INFO" "Running RAG pipeline"
 OUTPUT_FILE="${OUTPUT_DIR}/output_${TIMESTAMP}.txt"
 
-"python${PYTHON_VERSION}" rag_v3.py \
+"python${PYTHON_VERSION}" rag.py \
     --input_folder data/tmp_txt \
     --question "$question" \
     --top_k "$TOP_K" \
