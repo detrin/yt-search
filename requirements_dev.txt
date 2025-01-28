@@ -1,0 +1,15 @@
+yt-dlp
+ipykernel
+langchain_community
+unstructured[all-docs]
+langchainhub
+faiss-cpu
+langchain
+langgraph
+pandas
+rank_bm25
+rank_llm
+langchain-huggingface
+langchain-ollama
+langchain-openai
+flashrank
