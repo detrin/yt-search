@@ -1,0 +1,8 @@
+langchain==0.3.16
+langchain_community==0.3.16
+langchain_core==0.3.32
+langchain_huggingface==0.1.2
+langchain_ollama==0.2.2
+langgraph==0.2.68
+pydantic==2.10.6
+typing_extensions==4.12.2

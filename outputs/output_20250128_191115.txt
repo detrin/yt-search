@@ -1,0 +1,4 @@
+Question: What is DeepSeek-r1?
+Answer: DeepSeek-R1 is an open-source, distilled language model. It's designed to be efficient, resourceful, and cheap, leveraging larger foundational AI models like OpenAI's GP4 or Meta Llama as scaffolding to create something much larger. It achieves a high level of robustness and adaptability despite being relatively small in scale, making it a significant development in the field of artificial intelligence.
+Reference YouTbe videos:
+- [Deepseek R1 Explained by a Retired Microsoft Engineer ](https://www.youtube.com/watch?v=r3TpcHebtxM)

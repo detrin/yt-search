@@ -55,3 +55,13 @@ https://python.langchain.com/docs/integrations/text_embedding/
 ```
 ollama pull mistral:v0.3 
 ```
+```
+bash download_yt_subtitles.sh -s "What is BERT?" -n 10 -o data/tmp_srt
+bash convert_srt_to_txt.sh data/tmp_srt data/tmp_txt
+python3.12 rag.py
+rm -r data/tmp_*
+```
+https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image
+```
+docker-compose up --build 
+```

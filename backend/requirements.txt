@@ -1,0 +1,21 @@
+fastapi[all]
+redis
+python-multipart
+uvicorn
+langchain
+langchain_community
+langchain_core
+langchain_huggingface
+langchain_ollama
+langgraph
+pydantic
+typing_extensions
+yt-dlp
+rank-bm25
+rank-llm
+unstructured[all-docs]
+langchainhub
+numpy # faiss issue with 1.26.4
+faiss-cpu
+pandas
+flashrank
