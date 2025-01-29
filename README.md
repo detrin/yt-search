@@ -72,8 +72,8 @@ graph TD
     Backend -->|"OLLAMA_HOST=ollama:11434"| Ollama
     Backend --> Redis
 
-    classDef service fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef volume fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef service stroke:#333,stroke-width:2px;
+    classDef volume stroke:#333,stroke-width:2px;
     class Redis,Ollama,Backend,Gradio service;
     class Volume_ollama volume;
 ```
