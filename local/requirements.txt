@@ -1,8 +1,17 @@
-langchain==0.3.16
-langchain_community==0.3.16
-langchain_core==0.3.32
-langchain_huggingface==0.1.2
-langchain_ollama==0.2.2
-langgraph==0.2.68
-pydantic==2.10.6
-typing_extensions==4.12.2
+langchain
+langchain_community
+langchain_core
+langchain_huggingface
+langchain_ollama
+langgraph
+pydantic
+typing_extensions
+yt-dlp
+rank-bm25
+rank-llm
+unstructured[all-docs]
+langchainhub
+numpy # faiss issue with 1.26.4
+faiss-cpu
+pandas
+flashrank

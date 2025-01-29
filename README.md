@@ -9,14 +9,22 @@ yt-dlp "ytsearch10:${search_phrase}" --write-auto-subs --sub-lang en --convert-s
 yt-dlp "ytsearch10:${search_phrase}" --write-subs --sub-lang en --convert-subs srt --skip-download
 ```
 
-Make sure you have installed `ollama` on your system, then pull `llama3.1:8b` and make sure that it is running
+## Usage
+### Local 
+Navigate to `local/`. Make sure you have installed `ollama` on your system, then pull `llama3.1:8b` and make sure that it is running
 ```
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.1:8b
 ollama run llama3.1:8b "What is the capital of France?"
 ```
 
-The following will process the YT subtitles and answer the defined question.
+After that make sure that your `python3.11` is set up and you install all the requirements. Ideally use `uv` from Astral. Version 3.12 might be problematic.
+```
+uv ven --python=3.11
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+This will lso install `yt-dlp`. The following will process the YT subtitles and answer the defined question. Make sure that `ffmepg` is installed on your computer
 ```
 question="What is BERT?"
 # download subtitles from YT
@@ -27,13 +35,23 @@ bash convert_srt_to_txt.sh data/tmp_srt data/tmp_txt
 python rag.py \
     --input_folder data/tmp_txt \
     --question "$question" \
-    --top_k "$TOP_K" \
-    --max_recursion "$MAX_RECURSION"
+    --top_k 5 \
+    --max_recursion 100
 # cleaning
 rm -r data/tmp_*
 ```
+This will output
+```Question: What is BERT?
+Answer: BERT, or Bidirectional Encoder Representations from Transformers, is a popular language model developed by Google. It is a system and tool that understands language better than any other tool in human history, although not as well as humans do. It is freely available for download, allowing anyone to experiment with it and use it to build systems that can solve various problems related to language.
+Reference YouTbe videos:
+- [What is BERT and how does it work？ ｜ A Quick Review ](https://www.youtube.com/watch?v=6ahxPTLZxU8)
+- [BERT Neural Network - EXPLAINED! ](https://www.youtube.com/watch?v=xI0HHN5XKDo)
+- [What is BERT？ ｜ Deep Learning Tutorial 46 (Tensorflow, Keras & Python) ](https://www.youtube.com/watch?v=7kLi8u2dJz0)
+- [Language Processing with BERT： The 3 Minute Intro (Deep learning for NLP) ](https://www.youtube.com/watch?v=ioGry-89gqE)
+- [BERT model in NLP explained ](https://www.youtube.com/watch?v=j2RYX2hvRz0)
+```
 
-## Docker
+### Docker
 You can also run the whole app using `docker-compose`
 ```
 docker-compose up --build 

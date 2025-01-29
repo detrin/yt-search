@@ -102,7 +102,6 @@ def main():
     }, {"recursion_limit": args.max_recursion})
 
     # 7) Print final answer
-    print("="*40)
     print("Question:", args.question)
     print("Answer:", answer)
 
