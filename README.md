@@ -1,4 +1,4 @@
-# yt-search
+# YouTube Search
 Search YouTube videos and their context.
 
 ## Motivation
