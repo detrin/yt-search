@@ -16,17 +16,14 @@ Fine, so we got our subtitles, but what we will do with them? We will convert th
 ```mermaid
 %% Document QA System Flow
 flowchart TD
-    A[Input Folder & Question] --> B[Document Loading]
-    B --> C[Text Splitting\n(RecursiveCharacterTextSplitter)]
+    A[Input Folder & Question, Document Loading]
+    A --> C[Text Splitting RecursiveCharacterTextSplitter]
     C --> D1[BM25 Retriever]
     C --> D2[FAISS Vector Store]
-    D1 --> E[Ensemble Retriever\n(BM25 + FAISS)]
+    D1 --> E[Ensemble Retriever BM25 + FAISS ]
     D2 --> E
     E --> F[Top-k Document Retrieval]
-    F --> G[LLM Prompt Construction]
-    G --> H[Ollama LLM Processing]
-    H --> I[Answer Generation]
-    I --> J[Output Results & References]
+    F --> H[Ollama LLM Processing, Answer Generation]
 ```
 For creating embeddings on RAG we use `sentence-transformers/all-mpnet-base-v2` (HuggingFace) and for answer generation we use `llama3.1:8b` (via Ollama). The whole pipeline requires something under 8 GB of RAM and it can take aorund 2 mins to execute `rag.py` locally.
 
