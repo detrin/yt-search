@@ -46,14 +46,14 @@ This will lso install `yt-dlp`. The following will process the YT subtitles and 
 ```shell
 question="What is BERT?"
 # download subtitles from YT
-bash download_yt_subtitles.sh -s "$question" -n 10 -o data/tmp_srt
+bash download_yt_subtitles.sh -s "$question" -n 100 -o data/tmp_srt
 # convert subtitles to txt
 bash convert_srt_to_txt.sh data/tmp_srt data/tmp_txt
 # run the RAG and find the answer
-python rag.py \
+python3.12 rag.py \
     --input_folder data/tmp_txt \
     --question "$question" \
-    --top_k 5 \
+    --top_k 10 \
     --max_recursion 100
 # cleaning
 rm -r data/tmp_*

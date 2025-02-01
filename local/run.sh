@@ -2,9 +2,9 @@
 
 # --- Configuration Section ---
 # These can be moved to a separate config file if needed
-NUM_YT_RESULTS=10
+NUM_YT_RESULTS=100
 MAX_RECURSION=100
-TOP_K=5
+TOP_K=10
 LOG_DIR="logs"
 OUTPUT_DIR="outputs"
 TMP_DIRS=("data/tmp_srt" "data/tmp_txt")
@@ -71,19 +71,11 @@ done
 # Check dependencies
 check_python
 
-# Check for requirements.txt and install dependencies
-if [ -f "$REQUIREMENTS" ]; then
-    log "INFO" "Installing Python dependencies"
-    "python${PYTHON_VERSION}" -m pip install -r "$REQUIREMENTS"
-else
-    log "WARNING" "No requirements.txt found - proceeding without dependency installation"
-fi
-
 # Processing pipeline
 log "INFO" "Starting processing pipeline"
 
 log "INFO" "Downloading subtitles"
-if ! bash ./download_yt_subtitles.sh -s "$question" -n "$NUM_RESULTS" -o data/tmp_srt; then
+if ! bash ./download_yt_subtitles.sh -s "$question" -n "$NUM_YT_RESULTS" -o data/tmp_srt; then
     log "ERROR" "Subtitle download failed"
     exit 1
 fi
@@ -102,16 +94,4 @@ OUTPUT_FILE="${OUTPUT_DIR}/output_${TIMESTAMP}.txt"
     --input_folder data/tmp_txt \
     --question "$question" \
     --top_k "$TOP_K" \
-    --max_recursion "$MAX_RECURSION" | \
-    awk '/^={40}$/ {flag=1; next} flag' | \
-    tee "$OUTPUT_FILE"
-
-log "INFO" "Processing complete. Output saved to ${OUTPUT_FILE}"
-
-if [ -n "$JOB_ID" ]; then
-    if [ $? -eq 0 ]; then
-        python3 -c "from processing import update_redis_status; update_redis_status('$JOB_ID', 'done', '$(cat $OUTPUT_FILE | base64)')"
-    else
-        python3 -c "from processing import update_redis_status; update_redis_status('$JOB_ID', 'failed')"
-    fi
-fi
+    --max_recursion "$MAX_RECURSION" 
