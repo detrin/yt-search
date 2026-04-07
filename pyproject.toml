@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yt-search"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.0",
+    "yt-dlp>=2024.1.0",
+    "sentence-transformers>=3.0",
+    "faiss-cpu",
+    "rank-bm25>=0.2",
+    "numpy>=1.26",
+    "tenacity>=8.0",
+]
+
+[project.scripts]
+yt-search = "yt_search.cli:main"
+yt-search-install-skill = "yt_search.install_skill:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yt_search"]
+artifacts = ["skill/**"]
