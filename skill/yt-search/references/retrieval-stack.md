@@ -3,9 +3,10 @@
 ## Embedding
 
 Model: `nomic-ai/nomic-embed-text-v1.5`
-- 8192-token context window (vs 384 for the previous all-mpnet-base-v2)
+- 8192-token context window (custom NomicBert architecture, `trust_remote_code=True`)
 - Requires task prefixes: documents get `search_document:`, queries get `search_query:`
-- ~137MB, Apache 2.0
+- ~522MB, Apache 2.0
+- On macOS/ARM: must load before `faiss-cpu` to avoid segfault (handled by CLI)
 
 ## Chunking
 

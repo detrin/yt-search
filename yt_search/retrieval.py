@@ -1,6 +1,5 @@
 import pickle
 
-import faiss
 import numpy as np
 
 from yt_search.models import embed, rerank
@@ -17,6 +16,7 @@ def _rrf(ranks_list, n):
 
 
 def load(session_path):
+    import faiss
     index = faiss.read_index(str(session_path / "index.faiss"))
     with open(session_path / "data.pkl", "rb") as f:
         data = pickle.load(f)

@@ -1,7 +1,6 @@
 import pickle, re, subprocess, tempfile
 from pathlib import Path
 
-import faiss
 import numpy as np
 from rank_bm25 import BM25Okapi
 from tenacity import (
@@ -131,6 +130,8 @@ def download(urls):
 
 
 def build_index(chunks, session_path):
+    import faiss
+
     texts = [c["text"] for c in chunks]
     model = embed()
     vecs = model.encode(texts, normalize_embeddings=True, show_progress_bar=True).astype(np.float32)

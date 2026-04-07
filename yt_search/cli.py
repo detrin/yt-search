@@ -7,6 +7,16 @@ from yt_search.ingest import download, build_index
 from yt_search.retrieval import load, search
 
 
+def _preload_models():
+    """Load embedding model before faiss to avoid macOS/ARM segfault.
+
+    faiss-cpu and the nomic custom model code conflict when faiss is
+    imported first. Calling this before any faiss usage prevents the crash.
+    """
+    from yt_search.models import embed
+    embed()
+
+
 @click.group()
 def main():
     pass
@@ -16,6 +26,7 @@ def main():
 @click.argument("urls", nargs=-1, required=True)
 def download_cmd(urls):
     sess.purge_expired()
+    _preload_models()
     chunks = download(list(urls))
     if not chunks:
         click.echo("No subtitles found.", err=True)
@@ -45,6 +56,7 @@ def download_cmd(urls):
 @click.argument("query")
 @click.option("--top-n", default=5, show_default=True)
 def query(session_id, query, top_n):
+    _preload_models()
     meta = sess.load(session_id)
     if not meta:
         click.echo(f"Session {session_id} not found.", err=True)
