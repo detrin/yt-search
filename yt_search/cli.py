@@ -1,9 +1,10 @@
-import json, shutil, sys, time
+import json, shutil, subprocess, sys, time
+from collections import Counter
 
 import click
 
 import yt_search.session as sess
-from yt_search.ingest import download, build_index
+from yt_search.ingest import download, build_index, tokenize
 from yt_search.retrieval import load, search
 
 
@@ -95,6 +96,79 @@ def clear(session_id, all_):
     else:
         click.echo("Specify a session-id or --all.", err=True)
         sys.exit(1)
+
+
+@main.command()
+@click.argument("query")
+@click.option("--max", "max_results", default=5, show_default=True, help="Number of results.")
+def find(query, max_results):
+    """Search YouTube for videos matching a query. Returns URLs, titles, channels, and durations."""
+    result = subprocess.run(
+        [
+            "yt-dlp", f"ytsearch{max_results}:{query}",
+            "--dump-json", "--flat-playlist", "--no-download",
+        ],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        click.echo(f"Search failed: {result.stderr.strip()}", err=True)
+        sys.exit(1)
+
+    videos = []
+    for line in result.stdout.strip().splitlines():
+        d = json.loads(line)
+        videos.append({
+            "url": f"https://www.youtube.com/watch?v={d['id']}",
+            "title": d.get("title", ""),
+            "channel": d.get("channel", ""),
+            "duration": d.get("duration_string", ""),
+        })
+    click.echo(json.dumps(videos, indent=2))
+
+
+@main.command()
+@click.argument("session_id")
+@click.option("--top-n", default=10, show_default=True, help="Top keywords per video.")
+def topics(session_id, top_n):
+    """Show top keywords per video in a session to help plan queries."""
+    meta = sess.load(session_id)
+    if not meta:
+        click.echo(f"Session {session_id} not found.", err=True)
+        sys.exit(1)
+
+    _, _, chunks = load(sess.path(session_id))
+
+    # Group chunks by video
+    by_video = {}
+    for c in chunks:
+        by_video.setdefault(c["video"], []).append(c["raw"])
+
+    # Simple stopword set for keyword extraction
+    stop = {
+        "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
+        "of", "with", "by", "from", "is", "it", "that", "this", "was", "are",
+        "be", "have", "has", "had", "not", "you", "your", "we", "they", "he",
+        "she", "its", "my", "do", "if", "so", "as", "what", "when", "can",
+        "will", "just", "about", "up", "out", "all", "there", "their", "them",
+        "been", "would", "could", "should", "more", "how", "than", "then",
+        "also", "into", "very", "some", "like", "know", "going", "im", "ive",
+        "dont", "youre", "thats", "really", "because", "even", "one", "two",
+        "get", "got", "think", "lot", "people", "thing", "things", "right",
+        "way", "said", "say", "want", "make", "going", "well", "much", "back",
+        "now", "here", "those", "these", "being", "other", "over", "did", "go",
+        "were", "which", "who", "where", "why", "does", "doing", "done", "oh",
+        "yeah", "okay", "um", "uh", "music",
+    }
+
+    output = {}
+    for title, raw_chunks in by_video.items():
+        words = []
+        for raw in raw_chunks:
+            words.extend(tokenize(raw))
+        freq = Counter(w for w in words if w not in stop and len(w) > 2)
+        output[title] = [w for w, _ in freq.most_common(top_n)]
+
+    click.echo(json.dumps(output, indent=2))
 
 
 main.add_command(download_cmd, name="download")
