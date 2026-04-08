@@ -20,11 +20,19 @@ _governor = CentrifugalGovernor(max_swing_height=3, spindown_seconds=120)
 class RateLimitError(Exception):
     pass
 
-CHUNK_WORDS = 400
+CHUNK_WORDS = 200
+OVERLAP_WORDS = 40
+
+_PUNCT_RE = re.compile(r"[^\w\s]", re.UNICODE)
 
 
 def _strip_tags(text):
     return re.sub(r"<[^>]+>", "", text).strip()
+
+
+def tokenize(text):
+    """Normalize text for BM25: lowercase, strip punctuation, split."""
+    return _PUNCT_RE.sub("", text.lower()).split()
 
 
 def _parse_srt(content):
@@ -48,9 +56,10 @@ def _build_chunks(segs, title, vid_id):
     for ts, text in segs:
         if ts0 is None:
             ts0 = ts
-        buf.append(text)
-        if len(" ".join(buf).split()) >= CHUNK_WORDS:
-            raw = " ".join(buf)
+        buf.append((ts, text))
+        words = " ".join(t for _, t in buf).split()
+        if len(words) >= CHUNK_WORDS:
+            raw = " ".join(t for _, t in buf)
             chunks.append({
                 "text": f"search_document: [Video: {title} | Time: {ts0}]\n{raw}",
                 "raw": raw,
@@ -58,9 +67,19 @@ def _build_chunks(segs, title, vid_id):
                 "video_id": vid_id,
                 "timestamp": ts0,
             })
-            buf, ts0 = [], None
+            # Keep trailing segments whose words fit within OVERLAP_WORDS
+            overlap_buf, overlap_wc = [], 0
+            for seg in reversed(buf):
+                seg_wc = len(seg[1].split())
+                if overlap_wc + seg_wc > OVERLAP_WORDS:
+                    break
+                overlap_buf.append(seg)
+                overlap_wc += seg_wc
+            overlap_buf.reverse()
+            buf = overlap_buf
+            ts0 = buf[0][0] if buf else None
     if buf:
-        raw = " ".join(buf)
+        raw = " ".join(t for _, t in buf)
         chunks.append({
             "text": f"search_document: [Video: {title} | Time: {ts0}]\n{raw}",
             "raw": raw,
@@ -139,7 +158,7 @@ def build_index(chunks, session_path):
     index = faiss.IndexFlatIP(vecs.shape[1])
     index.add(vecs)
 
-    bm25 = BM25Okapi([t.lower().split() for t in texts])
+    bm25 = BM25Okapi([tokenize(c["raw"]) for c in chunks])
 
     faiss.write_index(index, str(session_path / "index.faiss"))
     with open(session_path / "data.pkl", "wb") as f:

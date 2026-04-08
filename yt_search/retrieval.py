@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 
+from yt_search.ingest import tokenize
 from yt_search.models import embed, rerank
 
 RRF_K = 60
@@ -23,7 +24,7 @@ def load(session_path):
     return index, data["bm25"], data["chunks"]
 
 
-def search(query, index, bm25, chunks, top_k=20, top_n=5):
+def search(query, index, bm25, chunks, top_k=40, top_n=5):
     n = len(chunks)
     top_k = min(top_k, n)
 
@@ -33,7 +34,7 @@ def search(query, index, bm25, chunks, top_k=20, top_n=5):
     _, dense_ids = index.search(q_emb, top_k)
     dense_ranks = dense_ids[0].tolist()
 
-    bm25_scores = bm25.get_scores(query.lower().split())
+    bm25_scores = bm25.get_scores(tokenize(query))
     sparse_ranks = np.argsort(bm25_scores)[::-1][:top_k].tolist()
 
     rrf_scores = _rrf([dense_ranks, sparse_ranks], n)
